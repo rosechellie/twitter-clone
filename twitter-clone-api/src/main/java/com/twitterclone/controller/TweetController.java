@@ -1,17 +1,15 @@
 package com.twitterclone.controller;
 
 import com.twitterclone.dto.TweetDTO;
-import com.twitterclone.dto.TweetInteractionDTO;
-import com.twitterclone.dto.TweetInteractionEnum;
 import com.twitterclone.service.LikeService;
 import com.twitterclone.service.RetweetService;
 import com.twitterclone.service.TweetService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/tweets")
@@ -31,9 +29,16 @@ public class TweetController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<TweetDTO> createTweet(@RequestBody TweetDTO tweetDto) {
-        TweetDTO createdTweet = tweetService.createTweet(tweetDto);
-        return ResponseEntity.ok(createdTweet);
+    public ResponseEntity<?> createTweet(
+            @RequestBody /*Map<String, String> requestbody*/ TweetRequest tweetRequest) {
+        try {
+            String content = tweetRequest.getContent();
+            TweetDTO createdTweet = tweetService.createTweet(content);
+            return ResponseEntity.ok(createdTweet);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body(e);
+        }
     }
 
     @GetMapping("/all")
@@ -42,27 +47,32 @@ public class TweetController {
         return ResponseEntity.ok(tweets);
     }
 
-//    @PostMapping("/{tweetId}/retweet")
-//    public ResponseEntity<TweetDTO> retweet(@PathVariable Long tweetId,
-//                                            @RequestBody String username) {
-//        // TODO get username from token
-//        try {
-//            TweetDTO tweetDto = retweetService.retweet(tweetId, username);
-//            return ResponseEntity.ok(tweetDto);
-//        } catch (Exception e) {
-//            return ResponseEntity.ok(null);
-//        }
-//    }
-//
-//    @PostMapping("/{tweetId}/like")
-//    public ResponseEntity<TweetDTO> like(@PathVariable Long tweetId,
-//                                            @RequestBody String username) {
-//        // TODO get username from token
-//        try {
-//            TweetDTO tweetDto = likeService.like(tweetId, username);
-//            return ResponseEntity.ok(tweetDto);
-//        } catch (Exception e) {
-//            return ResponseEntity.ok(null);
-//        }
-//    }
+    @GetMapping("/{username}")
+    public ResponseEntity<List<TweetDTO>> getTweetsByUsername(@PathVariable String username) {
+
+        List<TweetDTO> tweets = tweetService.findTweetsByUser(username);
+        return ResponseEntity.ok(tweets);
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<?> getTweetsByCurrentUser() {
+
+        try {
+            List<TweetDTO> tweets = tweetService.findTweetsByCurrentUser();
+            return ResponseEntity.ok(tweets);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body(e);
+        }
+    }
+}
+
+class TweetRequest {
+    private String content;
+    public String getContent() {
+        return content;
+    }
+    public void setContent(String content) {
+        this.content = content;
+    }
 }

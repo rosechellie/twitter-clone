@@ -1,9 +1,10 @@
-package com.twitterclone.service;
+package com.twitterclone.security;
 
 import com.twitterclone.security.CustomUserDetailsService;
 import com.twitterclone.security.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -32,6 +33,15 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
         throws ServletException, IOException {
 
+        // Allow unauthenticated access to the login endpoint
+//        if (request.getServletPath().equals("/login")) {
+//            chain.doFilter(request, response);
+//            return;
+//        }
+
+        // if jwt token is set in Authorization
+        // (Login -> set jwt to response body -> store in localStorage etc
+        // -> add to authorization header -> send request to authenticated api)
         final String authorizationHeader = request.getHeader("Authorization");
 
         String username = null;
@@ -39,8 +49,24 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
         if(authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             jwt = authorizationHeader.substring(7);
-            username = jwtUtil.extractUsername(jwt);
         }
+
+        // if jwt token is set in Cookies
+        // (Login -> set jwt to response header -> send request to authenticated api)
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("jwt".equals(cookie.getName())) {
+                    jwt = cookie.getValue();
+                }
+            }
+        }
+        System.out.println(jwt);
+
+        // get username from jwt
+        if(jwt != null)
+            username = jwtUtil.extractUsername(jwt);
+
 
         if(username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);

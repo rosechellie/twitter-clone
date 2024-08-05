@@ -1,0 +1,18 @@
+
+.maincontainer {
+  display: flex;
+  flex-direction: row;
+  width: 80%;
+  margin: auto;
+  padding-top: 50px;
+}
+
+@media screen and (max-width: 575px){
+  
+}
+
+.tweetlistcontainer {
+  height: 90vh;
+  max-height: 90vh;
+  overflow: auto;
+}

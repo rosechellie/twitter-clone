@@ -1,0 +1,36 @@
+button {
+  background-color: transparent;
+  background-repeat: no-repeat;
+  border: none;
+  cursor: pointer;
+  overflow: hidden;
+  outline: none;
+}
+
+.button {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  color: black;
+  border: none;
+  border-radius: 0.25rem;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  width: 100%;
+  font-weight: bold;
+  font-size: larger;
+}
+
+.button:hover {
+  background-color: #cecece;
+}
+
+.button:active {
+  background-color: #cecece;
+}
+
+.sidebar-container {
+  padding: 5px 10px;
+}
